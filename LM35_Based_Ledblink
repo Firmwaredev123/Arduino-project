@@ -1,0 +1,55 @@
+const int LM35_pin = A0;
+
+float tempc;
+float SensorValue;
+const int lowBlinkInterval = 250;   // in milliseconds
+const int highBlinkInterval = 500;  // in milliseconds
+
+// Variables to track previous time and blink state
+unsigned long previousMillis = 0;
+int ledState = LOW;
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(LM35_pin, INPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.begin(115200);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  SensorValue = analogRead(LM35_pin);
+
+  tempc = (SensorValue * 5.0 / 1024.0) * 100.0;
+  Serial.print("Temperature: ");
+  Serial.print(tempc);
+  Serial.println(" °C");
+
+  if (tempc <= 30) {
+    blinkLED(lowBlinkInterval);
+  } else if (tempc > 30) {
+    blinkLED(highBlinkInterval);
+  } else {
+    digitalWrite(LED_BUILTIN, LOW);
+    Serial.println("Error in reading the temperature");
+  }
+}
+
+void blinkLED(int interval) {
+  unsigned long currentMillis = millis();  //  current time value
+
+  // Check if it's time to blink the LED
+  if (currentMillis - previousMillis >= interval) {
+    // Store the last time led blinked
+    previousMillis = currentMillis;
+
+    if (ledState == LOW) {
+      ledState = HIGH;
+    } else {
+      ledState = LOW;
+    }
+
+    // Set the LED with the ledState variable
+    digitalWrite(LED_BUILTIN, ledState);
+  }
+}
