@@ -2,54 +2,52 @@ const int LM35_pin = A0;
 
 float tempc;
 float SensorValue;
-const int lowBlinkInterval = 250;   // in milliseconds
-const int highBlinkInterval = 500;  // in milliseconds
 
-// Variables to track previous time and blink state
-unsigned long previousMillis = 0;
-int ledState = LOW;
+//delay function for required time
+void delay1ms(unsigned int ms)
+{
+  unsigned int i,j;
+  for(i=0;i<ms;i++)
+  for(j=0;j<1275;j++);
+}
 
 void setup() {
-  // put your setup code here, to run once:
-  pinMode(LM35_pin, INPUT);
+  //Setting the mode for the pins
+  pinMode(LM35_pin, INPUT);       
   pinMode(LED_BUILTIN, OUTPUT);
-  Serial.begin(115200);
+  //setting baudrate for serial monitor
+  Serial.begin(9600);
+  //making led low at the start
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // reading the sensor value
   SensorValue = analogRead(LM35_pin);
 
-  tempc = (SensorValue * 5.0 / 1024.0) * 100.0;
+  tempc = (SensorValue * 5.0 / 1024.0) * 100.0; //converting the sensor value into degree celsius
   Serial.print("Temperature: ");
   Serial.print(tempc);
   Serial.println(" °C");
 
-  if (tempc <= 30) {
-    blinkLED(lowBlinkInterval);
-  } else if (tempc > 30) {
-    blinkLED(highBlinkInterval);
-  } else {
+  if (tempc <= 30) 
+  {
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay1ms(250);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay1ms(250);
+  } 
+  else if (tempc > 30) 
+  {
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay1ms(500);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay1ms(500);
+  } 
+  else
+  {
     digitalWrite(LED_BUILTIN, LOW);
     Serial.println("Error in reading the temperature");
   }
 }
 
-void blinkLED(int interval) {
-  unsigned long currentMillis = millis();  //  current time value
-
-  // Check if it's time to blink the LED
-  if (currentMillis - previousMillis >= interval) {
-    // Store the last time led blinked
-    previousMillis = currentMillis;
-
-    if (ledState == LOW) {
-      ledState = HIGH;
-    } else {
-      ledState = LOW;
-    }
-
-    // Set the LED with the ledState variable
-    digitalWrite(LED_BUILTIN, ledState);
-  }
-}
